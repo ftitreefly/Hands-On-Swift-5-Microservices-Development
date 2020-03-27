@@ -21,8 +21,8 @@ volumes:
 
 x-shared_environment: &shared_environment
   LOG_LEVEL: ${LOG_LEVEL:-debug}
-  MYSQL_CRED: mysql://vapor_username:vapor_password@db:3306/vapor_database?ssl=false
-  JWKS: '{"keys":[{"kty":"RSA","d":"<< insert d >>","e":"AQAB","use":"sig","kid":"backend","alg":"RS256","n":"<< insert n >>"}]}'
+  PSQL_CRED: postgres://vapor_username:vapor_password@db:5432/vapor_database?ssl=false
+  JWKS: '{"keys":[{"kty":"RSA","d":"BGSH12mVZbAlYny1C9KlswOORGsz0odL_NmvU-6mA_nNxXKz6nQIK6Il6L8VPYa9dZb1HwkFRDdyWqLYmjrTlQZievU9VLvmWaUlKXyIwOiXF3vqmzQy_luR-lE5v05pOqUgPhnPrQtGPvSuQpAYLFSJCX9YLJdmI0LA-0G_AvVnSjjSBnmvwZEKfHsZSRRC_cDOk8pm4A3iEMQv1_3xdwZ5GeKtkuAdNi9T31lMNlnKj-A5hZq6rfwiAWdxvCPqg44EyCKhj6c6sm2aM0qqKYb3sYMkYRmZh4GzaX8yQB3roQG-FLZ18VRm9q9YPuFavOL_L_NC8JG2Z6use4DbsQ","e":"AQAB","use":"sig","kid":"backend","alg":"RS256","n":"ghZ4Eb-LT2tcCfWI6Szxu25kLQ3LOADA-KydgxASz_jMb5IHxMQIwMKFXe5qQ8lIG1lFhdu2G51GdXA8vaY148UtYt_COUnQSYOfIhcp7WpPXXhu83vqjET78CzkLsDI8VmF-9d8dHvtSVUqXfkk83kLOYmBcEamMWICUJj1yTiipqknuDZSMfIccXdhWEXr8gpl1cVZ5G2QZVNpFl1wGJ2UvwbQx6t9M6LDD9c9pqKc2-1X7pNLb-UekxhYzJHeRko288REN8AR7czaMQtZrB2hTEJAVixUu6KPGfSHxp49K2Hy2a1UC0nlohcrJ0ERfgMJ6oZ_n_kYeLx6nHeimw"}]}'
   SENDGRID_API_KEY: asdf
   
 services:
@@ -58,14 +58,15 @@ services:
       - db
     command: ["migrate", "--revert", "--yes"]
   db:
-    image: mysql:8.0
+    image: postgres:12.1-alpine
     volumes:
-      - db_data:/var/lib/mysql
+        - db_data:/var/lib/postgresql/data/pgdata
     environment:
-      MYSQL_USER: vapor_username
-      MYSQL_PASSWORD: vapor_password
-      MYSQL_DATABASE: vapor_database
-      MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
-    command: ["--default-authentication-plugin=mysql_native_password"]
+        PGDATA: /var/lib/postgresql/data/pgdata
+        POSTGRES_USER: vapor_username
+        POSTGRES_PASSWORD: vapor_password
+        POSTGRES_DB: vapor_database
+    expose:
+        - 5432
     ports:
-      - '3306:3306'
+        - '5432:5432'

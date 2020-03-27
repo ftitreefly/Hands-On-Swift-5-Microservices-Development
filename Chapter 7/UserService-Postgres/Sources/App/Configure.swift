@@ -1,5 +1,5 @@
 import Fluent
-import FluentMySQLDriver
+import FluentPostgresDriver
 import Vapor
 import JWT
 import SendGrid
@@ -12,12 +12,11 @@ public func configure(_ app: Application) throws {
     guard let jwksString = Environment.process.JWKS else { fatalError("No value was found at the given public key environment 'JWKS'")
     }
     
-    guard let mysqlUrl = Environment.process.MYSQL_CRED else { fatalError("No value was found at the given public key environment 'MYSQL_CRED'")
+    guard let psqlUrl = Environment.process.PSQL_CRED else { fatalError("No value was found at the given public key environment 'PSQL_CRED'")
            }
-    guard let url = URL(string: mysqlUrl) else { fatalError("Cannot parse: \(mysqlUrl) correctly.")
+    guard let url = URL(string: psqlUrl) else { fatalError("Cannot parse: \(psqlUrl) correctly.")
     }
-    
-    app.databases.use(try .mysql(url: url), as: .mysql)
+    app.databases.use(try .postgres(url: url), as: .psql)
     app.middleware.use(CORSMiddleware())
     app.middleware.use(ErrorMiddleware() { request, error in
         struct ErrorResponse: Content {
